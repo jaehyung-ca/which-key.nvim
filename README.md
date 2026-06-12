@@ -148,23 +148,24 @@ become a browsable, fuzzy-searchable reference — without you writing them out.
 
 ```lua
 require("which-key").setup({
-  presets = { "g", "z", "windows" },  -- annotate built-in shortcuts
+  presets = { "g", "lsp", "z", "windows" },  -- annotate built-in shortcuts
 })
 ```
 
 | Value | Meaning |
 |---|---|
 | `{}` / `false` | none (default) |
-| `true` | a sensible default set: `g`, `z`, `windows` |
+| `true` | a sensible default set: `g`, `lsp`, `z`, `windows` |
 | `"all"` | every set below |
-| `{ "g", "z", "windows", "brackets" }` | pick exactly the sets you want |
+| `{ "g", "lsp", "z", "windows", "brackets" }` | pick exactly the sets you want |
 
 | Set | Covers |
 |---|---|
 | `g` | `gg`, `gd`, `gi`, `gu`/`gU`, `gq`, `gv`, display-line motions, change list, … |
+| `lsp` | Neovim 0.11 LSP defaults: `grn`, `gra`, `grr`, `gri`, `grt`, `grx`, `gO` |
 | `z` | folds (`zf`/`zo`/`zR`/`zM`…), scroll positioning (`zz`/`zt`/`zb`), spelling (`zg`/`z=`) |
 | `windows` | window management under `<C-w>` (`s`, `v`, `h/j/k/l`, `=`, `H/J/K/L`, …) |
-| `brackets` | `[`/`]` motions: unmatched parens, sections, methods, diffs, spell |
+| `brackets` | `[`/`]` motions: unmatched parens, sections, methods, diffs, diagnostics, spell |
 
 Browse or search them:
 

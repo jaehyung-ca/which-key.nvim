@@ -13,7 +13,7 @@ M.defaults = {
   triggers = "auto", -- "auto" derives prefix roots from registered keys
   -- Built-in shortcut annotations (see presets.lua). Metadata only — never
   -- creates maps. nil/false/{} = none; true = a sensible default set;
-  -- "all"; a name like "g"; or a list, e.g. { "g", "z", "windows" }.
+  -- "all"; a name like "g"; or a list, e.g. { "g", "lsp", "z", "windows" }.
   presets = {},
   -- Raw keystroke "panic buffer": diagnoses unregistered/accidental input.
   keylog = {

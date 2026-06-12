@@ -279,6 +279,15 @@ do
   eq(ann[1].mode, "n", "annotations default to normal mode")
   eq(presets.roots({ "windows" }), { "<C-w>" }, "windows preset roots on <C-w>")
   eq(presets.roots({ "brackets" }), { "[", "]" }, "brackets preset roots on [ and ]")
+  eq(presets.roots({ "lsp" }), { "g" }, "lsp preset roots on g")
+
+  -- the lsp set carries Neovim 0.11's built-in gr-prefix mappings.
+  local lsp = presets.annotations({ "lsp" })
+  local has_grn = false
+  for _, a in ipairs(lsp) do
+    if a.lhs == "grn" then has_grn = true end
+  end
+  ok(has_grn, "lsp preset includes grn (LSP rename)")
 
   -- setup({ presets = ... }) annotates the built-ins into the registry,
   -- and they are searchable — without creating any live keymap.

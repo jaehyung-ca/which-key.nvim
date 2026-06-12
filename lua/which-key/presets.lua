@@ -97,6 +97,22 @@ local z = {
   },
 }
 
+-- Neovim 0.11 built-in LSP defaults: the gr-prefix family plus gO. These are
+-- mapped automatically when a language server attaches (see :h lsp-defaults),
+-- so most users have them without ever setting them.
+local lsp = {
+  root = { "g" },
+  items = {
+    { "grn", "LSP rename" },
+    { "gra", "LSP code action" },
+    { "grr", "LSP references" },
+    { "gri", "LSP implementation" },
+    { "grt", "LSP type definition" },
+    { "grx", "Run codelens" },
+    { "gO", "LSP document symbols" },
+  },
+}
+
 -- Window management under <C-w>.
 local windows = {
   root = { "<C-w>" },
@@ -107,6 +123,7 @@ local windows = {
     { "<C-w>q", "Quit window" },
     { "<C-w>c", "Close window" },
     { "<C-w>o", "Close other windows" },
+    { "<C-w>d", "Show diagnostics under cursor" },
     { "<C-w>w", "Cycle to next window" },
     { "<C-w>W", "Cycle to previous window" },
     { "<C-w>p", "Go to previous window" },
@@ -151,6 +168,8 @@ local brackets = {
     { "]M", "Next method end" },
     { "[c", "Previous diff change" },
     { "]c", "Next diff change" },
+    { "[d", "Previous diagnostic" },
+    { "]d", "Next diagnostic" },
     { "[s", "Previous misspelled word" },
     { "]s", "Next misspelled word" },
     { "[z", "Start of open fold" },
@@ -160,13 +179,13 @@ local brackets = {
   },
 }
 
-M.sets = { g = g, z = z, windows = windows, brackets = brackets }
+M.sets = { g = g, lsp = lsp, z = z, windows = windows, brackets = brackets }
 
 -- Sensible default when `presets = true`.
-M.default = { "g", "z", "windows" }
+M.default = { "g", "lsp", "z", "windows" }
 
 -- All available set names.
-M.all = { "g", "z", "windows", "brackets" }
+M.all = { "g", "lsp", "z", "windows", "brackets" }
 
 --- Resolve the `presets` config value to a clean list of known set names.
 --- Accepts: nil/false/{} (none), true (M.default), "all", a single name, or a list.
