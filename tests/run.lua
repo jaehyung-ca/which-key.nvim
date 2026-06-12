@@ -204,6 +204,33 @@ do
 
   local files = search.filter(items, "find")
   eq(files[1].item.lhs, "<leader>ff", "matching by description finds the right lhs")
+
+  -- window geometry: scales with the editor, stays on-screen.
+  local many = {}
+  for i = 1, 100 do
+    many[i] = "  binding number " .. i
+  end
+  local big = search._winconfig(many)
+  ok(big.height >= 15, "search window is at least 15 rows tall")
+  ok(big.height <= vim.o.lines, "search height never exceeds the screen")
+  ok(big.width >= math.min(76, vim.o.columns - 8), "search window is widened")
+  ok(big.width <= vim.o.columns, "search width never exceeds the screen")
+  ok(big.row >= 0 and big.col >= 0, "window stays within the editor bounds")
+  local small = search._winconfig({ "> ", "  one", "  two" })
+  eq(small.height, 3, "height shrinks to the content when the list is short")
+
+  -- size is configurable: fractions scale to the editor, ints are absolute.
+  local wide = { "> ", "  " .. string.rep("x", 200) }
+  local frac = search._winconfig(many, { height = 0.5 })
+  eq(frac.height, math.min(#many, math.floor(vim.o.lines * 0.5)), "fractional height scales to editor")
+  eq(
+    search._winconfig(wide, { min_width = 10, max_width = 0.5 }).width,
+    math.min(math.floor(vim.o.columns * 0.5), vim.o.columns - 4),
+    "fractional max_width caps a wide list"
+  )
+  eq(search._winconfig(many, { height = 5 }).height, 5, "absolute height is honored")
+  eq(search._winconfig(wide, { min_width = 10, max_width = 20 }).width, 20, "absolute max_width caps a wide list")
+  eq(search._winconfig({ "  hi" }, { min_width = 50, max_width = 90 }).width, 50, "min_width floors a narrow list")
 end
 
 --------------------------------------------------------- search exec
@@ -226,6 +253,9 @@ do
   ok(not pcall(config.extend, { delay = "soon" }), "non-number delay rejected")
   ok(not pcall(config.extend, { keylog = { enabled = "yes", max = 50 } }), "non-boolean keylog.enabled rejected")
   ok(not pcall(config.extend, { keylog = { enabled = true, max = -1 } }), "non-positive keylog.max rejected")
+  ok(pcall(config.extend, { search = { height = 0.5, min_width = 60, max_width = 120 } }), "valid search size passes")
+  ok(not pcall(config.extend, { search = { height = 0 } }), "non-positive search.height rejected")
+  ok(not pcall(config.extend, { search = { max_width = "wide" } }), "non-number search.max_width rejected")
 end
 
 ------------------------------------------------------------- presets

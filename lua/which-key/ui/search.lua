@@ -73,6 +73,47 @@ function M.filter(items, query)
   return out
 end
 
+-- Resolve a size knob: a value <= 1 is a fraction of `total`; > 1 is absolute.
+local function dim(v, total, default)
+  v = v or default
+  if v <= 1 then
+    return math.floor(total * v)
+  end
+  return math.min(math.floor(v), total)
+end
+
+--- Float geometry for the given line set, sized per `opts` (the resolved
+--- `search` config; falls back to the live config). Exposed for tests.
+--- @param lines string[]
+--- @param opts table|nil { height, min_width, max_width }
+--- @return table window config for nvim_open_win / nvim_win_set_config
+function M._winconfig(lines, opts)
+  opts = opts or require("which-key").config().search or {}
+  local content = 0
+  for _, l in ipairs(lines) do
+    content = math.max(content, vim.fn.strdisplaywidth(l))
+  end
+  -- Height is a ceiling; the list shrinks to fit when there are fewer rows.
+  local max_h = math.max(1, dim(opts.height, vim.o.lines, 0.7))
+  local height = math.max(1, math.min(#lines, max_h))
+  -- Width fits the content, floored by min_width and capped by max_width,
+  -- and never spills past the screen edge.
+  local min_w = math.min(opts.min_width or 80, vim.o.columns - 4)
+  local max_w = math.min(dim(opts.max_width, vim.o.columns, 0.9), vim.o.columns - 4)
+  local width = math.min(math.max(min_w, math.min(content + 2, max_w)), vim.o.columns - 2)
+  return {
+    relative = "editor",
+    row = math.max(0, math.floor((vim.o.lines - height) / 2) - 1),
+    col = math.max(0, math.floor((vim.o.columns - width) / 2)),
+    width = width,
+    height = height,
+    style = "minimal",
+    border = "rounded",
+    title = " which-key search ",
+    zindex = 200,
+  }
+end
+
 local function render(query, filtered, sel)
   ensure_hl()
   local lines = { "> " .. query }
@@ -99,27 +140,17 @@ local function render(query, filtered, sel)
     end
   end
 
-  local height = math.min(#lines, 15)
-  local width = 0
-  for _, l in ipairs(lines) do
-    width = math.max(width, vim.fn.strdisplaywidth(l))
-  end
-  width = math.max(40, math.min(width + 2, vim.o.columns - 4))
-  local cfg = {
-    relative = "editor",
-    row = math.max(0, math.floor((vim.o.lines - height) / 2) - 1),
-    col = math.floor((vim.o.columns - width) / 2),
-    width = width,
-    height = height,
-    style = "minimal",
-    border = "rounded",
-    title = " which-key search ",
-    zindex = 200,
-  }
+  local cfg = M._winconfig(lines)
   if M._win and vim.api.nvim_win_is_valid(M._win) then
     vim.api.nvim_win_set_config(M._win, cfg)
   else
     M._win = vim.api.nvim_open_win(M._buf, false, cfg)
+  end
+  -- The float is unfocused, so its viewport doesn't follow our selection on its
+  -- own. Park the window cursor on the selected row; Nvim scrolls the view to
+  -- keep that line visible, so selecting past the bottom edge pages the list.
+  if #filtered > 0 then
+    pcall(vim.api.nvim_win_set_cursor, M._win, { sel + 1, 0 })
   end
   vim.cmd("redraw")
 end

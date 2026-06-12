@@ -22,7 +22,14 @@ M.defaults = {
     notify_recording = true, -- warn when macro recording starts (the classic culprit)
     set_showcmd = true, -- show pending operators/counts live in the corner
   },
-  search = {},
+  search = {
+    -- Float size. A value <= 1 is a fraction of the editor; > 1 is absolute
+    -- cells. `height` is a maximum — the window shrinks to fit fewer results.
+    -- Width fits the content between `min_width` and `max_width`.
+    height = 0.7,
+    min_width = 80,
+    max_width = 0.9,
+  },
 }
 
 --- Validate a resolved config; raises a clear error on misuse.
@@ -48,6 +55,13 @@ function M.validate(cfg)
   check(type(cfg.keylog) == "table", "`keylog` must be a table")
   check(type(cfg.keylog.enabled) == "boolean", "`keylog.enabled` must be a boolean")
   check(type(cfg.keylog.max) == "number" and cfg.keylog.max > 0, "`keylog.max` must be a positive number")
+  check(type(cfg.search) == "table", "`search` must be a table")
+  for _, k in ipairs({ "height", "min_width", "max_width" }) do
+    check(
+      cfg.search[k] == nil or (type(cfg.search[k]) == "number" and cfg.search[k] > 0),
+      "`search." .. k .. "` must be a positive number"
+    )
+  end
   return cfg
 end
 

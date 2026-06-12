@@ -151,9 +151,17 @@ Defaults: >lua
         notify_recording = true,-- warn when a macro recording starts
         set_showcmd = true,     -- show pending operators/counts in the corner
       },
-      search = {},
+      search = {        -- :WhichKeySearch float size
+        height = 0.7,   -- max rows: fraction of editor (<=1) or absolute (>1)
+        min_width = 80, -- floor on width, in columns
+        max_width = 0.9,-- width cap: fraction (<=1) or absolute (>1)
+      },
     }
 <
+The search float scrolls to keep the selected entry visible. Values <= 1 are a
+fraction of the editor, > 1 are absolute cells; `height` is a ceiling and the
+width fits the content between `min_width` and `max_width`.
+
 Built-in presets ~                                            *which-key-presets*
 
 `presets` ships curated annotations for Neovim's *built-in* shortcuts so they

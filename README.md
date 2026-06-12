@@ -120,6 +120,23 @@ require("which-key").setup({
     notify_recording = true, -- warn when a macro recording starts
     set_showcmd = true,      -- show pending operators/counts in the corner
   },
+  search = {                 -- :WhichKeySearch float size
+    height = 0.7,            -- max rows: fraction of the editor (<=1) or absolute (>1)
+    min_width = 80,          -- floor on width, in columns
+    max_width = 0.9,         -- width cap: fraction (<=1) or absolute (>1)
+  },
+})
+```
+
+The search float is sized to the editor by default and scrolls to keep the
+selected entry visible. Numbers `<= 1` are read as a fraction of the editor,
+`> 1` as absolute cells; `height` is a ceiling (the window shrinks to fit a
+short result list), and the width fits the content between `min_width` and
+`max_width`. For a compact, fixed picker:
+
+```lua
+require("which-key").setup({
+  search = { height = 12, min_width = 50, max_width = 80 },
 })
 ```
 
