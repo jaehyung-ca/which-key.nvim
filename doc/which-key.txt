@@ -1,0 +1,177 @@
+*which-key.txt*  Keybinding manager: popup, search, keystroke diagnostic
+
+==============================================================================
+CONTENTS                                                     *which-key-contents*
+
+  1. Introduction ............................. |which-key-introduction|
+  2. Requirements ............................. |which-key-requirements|
+  3. Setup .................................... |which-key-setup|
+  4. Registering bindings ..................... |which-key-register|
+  5. Annotating bindings ...................... |which-key-annotate|
+  6. The popup ................................ |which-key-popup|
+  7. Search ................................... |which-key-search|
+  8. Keystroke diagnostic ..................... |which-key-what|
+  9. Commands ................................. |which-key-commands|
+  10. Configuration ........................... |which-key-config|
+  11. Highlight groups ........................ |which-key-highlights|
+  12. Limitations ............................. |which-key-limitations|
+
+==============================================================================
+1. INTRODUCTION                                          *which-key-introduction*
+
+which-key is a standalone, zero-dependency manager for Neovim keybindings. It:
+
+  - registers shortcuts (wrapping |vim.keymap.set|) and tracks their metadata;
+  - shows a popup of available continuations when you start a key sequence;
+  - provides a live fuzzy search over all known bindings;
+  - keeps a raw-keystroke "panic buffer" to diagnose accidental input
+    ("what did I just press that went weird?"), including a macro-recording
+    guard.
+
+==============================================================================
+2. REQUIREMENTS                                          *which-key-requirements*
+
+Neovim 0.12 or newer. No external plugins.
+
+==============================================================================
+3. SETUP                                                        *which-key-setup*
+
+>lua
+    require("which-key").setup({
+      delay = 200,          -- ms to wait before the popup appears
+    })
+<
+setup() is optional for |which-key-register| (a lazy default config is used),
+but it is required to activate the popup triggers and the keylog.
+
+==============================================================================
+4. REGISTERING BINDINGS                                      *which-key-register*
+
+                                                       *which-key.register()*
+require("which-key").register({spec})
+
+{spec} is a single binding or a list of them. Each item:
+
+    item[1]    (string)   left-hand side, e.g. "<leader>ff"
+    item[2]    (any)      right-hand side: a function or a string (optional)
+    desc       (string)   description shown in popup/search
+    mode       (string|table)  default "n"
+    group      (string)   marks a prefix node (omit item[2])
+    <opts>     silent, noremap, nowait, expr, buffer, remap
+
+>lua
+    require("which-key").register({
+      { "<leader>f",  group = "Find" },
+      { "<leader>ff", function() vim.cmd("buffers") end, desc = "Buffers" },
+      { "<leader>fg", ":Grep<cr>", desc = "Live grep" },
+    })
+<
+==============================================================================
+5. ANNOTATING BINDINGS                                       *which-key-annotate*
+
+                                                       *which-key.annotate()*
+require("which-key").annotate({spec})
+
+Attach metadata to maps created elsewhere so they appear in the popup and
+search. Registry-only and side-effect-free — it does not touch the live map.
+
+>lua
+    require("which-key").annotate({ gd = "Go to definition" })
+    require("which-key").annotate({ { "gr", "References", mode = "n" } })
+<
+==============================================================================
+6. THE POPUP                                                    *which-key-popup*
+
+Press a registered prefix root (by default |<leader>| / |<localleader>|) and
+pause: a popup lists the continuations. Keep typing to descend; a complete
+binding executes; <Esc> or an unknown key cancels. Fast typists never see the
+popup — it only appears after `delay` ms of hesitation.
+
+                                                            *which-key.show()*
+require("which-key").show([{prefix}], [{mode}])
+    Open the popup for {prefix} (default leader). Powers |:WhichKey|.
+
+By default only leader-rooted prefixes trigger the popup. To opt non-leader
+roots in, list them under `triggers` (see |which-key-config|). Note this can
+shadow builtin commands beginning with that key.
+
+==============================================================================
+7. SEARCH                                                      *which-key-search*
+
+                                                          *which-key.search()*
+require("which-key").search()
+
+Opens a live fuzzy picker (|matchfuzzypos|) over all registered/annotated
+bindings. Type to filter; <C-n>/<C-p> or <Down>/<Up> to move; <CR> to run the
+selection; <Esc> to cancel. Matching considers both the lhs and the
+description.
+
+==============================================================================
+8. KEYSTROKE DIAGNOSTIC                                           *which-key-what*
+
+                                                            *which-key.what()*
+require("which-key").what()
+
+Returns the last N raw keystrokes (the "panic buffer") as display lines; see
+also |:WhichKeyWhat|. This is a verbatim ring recorded via |vim.on_key| — it
+captures EVERY key, registered or not, which is what makes it useful for
+diagnosing accidental input. Surprise-prone keys (q, R, operators, <C-a>) are
+annotated. A macro-recording guard warns the moment |q| starts a recording,
+the single most common cause of "it started doing weird things".
+
+==============================================================================
+9. COMMANDS                                                  *which-key-commands*
+
+                                                                  *:WhichKey*
+:WhichKey [prefix]      Open the popup for {prefix} (default leader).
+                                                            *:WhichKeySearch*
+:WhichKeySearch         Open the fuzzy search picker.
+                                                              *:WhichKeyWhat*
+:WhichKeyWhat           Show recent raw keystrokes (the panic buffer).
+
+==============================================================================
+10. CONFIGURATION                                              *which-key-config*
+
+Defaults: >lua
+    {
+      delay = nil,        -- ms before popup; nil falls back to &timeoutlen
+      win = {
+        border = "rounded",
+        position = "bottom",
+      },
+      sort = "key",
+      triggers = "auto",  -- "auto" = leader/localleader; or a list of extra
+                          -- roots, e.g. { "g", "z" }
+      keylog = {
+        enabled = true,
+        max = 50,               -- raw keystrokes retained
+        notify_recording = true,-- warn when a macro recording starts
+        set_showcmd = true,     -- show pending operators/counts in the corner
+      },
+      search = {},
+    }
+<
+==============================================================================
+11. HIGHLIGHT GROUPS                                       *which-key-highlights*
+
+All link to sensible defaults; override with |:highlight|.
+
+    WhichKeyKey            popup: the key                  (Special)
+    WhichKeyDesc           popup: a leaf description       (Normal)
+    WhichKeyGroup          popup: a +group description     (Function)
+    WhichKeySeparator      popup: the " -> " separator     (Comment)
+    WhichKeySearchMatch    search: fuzzy-matched chars     (IncSearch)
+    WhichKeySearchSel      search: selected row            (Visual)
+    WhichKeySearchPrompt   search: the prompt marker       (Question)
+
+==============================================================================
+12. LIMITATIONS                                            *which-key-limitations*
+
+  - Popup triggers default to leader roots; non-leader roots are opt-in and may
+    shadow builtins (safe replay for builtin prefixes is not yet implemented).
+  - Search executes the selection by feeding its lhs in the current mode, so a
+    visual/insert-only binding must be invoked from that mode.
+  - `expr` string-rhs maps register but their rhs is fed as-is.
+  - Buffer-local map tracking is not yet supported.
+
+vim:tw=78:ts=8:ft=help:norl:

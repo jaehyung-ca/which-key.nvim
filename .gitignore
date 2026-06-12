@@ -1,0 +1,26 @@
+# Generated help tags (run :helptags to rebuild)
+doc/tags
+
+# Lua / LuaRocks
+*.luac
+.luarc.json
+lua_modules/
+luarocks/
+.luacheckcache
+
+# Test / CI artifacts
+.tests/
+luacov.*.out
+luacov.stats.out
+
+# Editor & tooling
+*.swp
+*.swo
+*~
+.vim/
+.nvim/
+tags
+
+# OS
+.DS_Store
+Thumbs.db
