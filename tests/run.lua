@@ -217,6 +217,44 @@ do
   ok(not pcall(config.extend, { keylog = { enabled = true, max = -1 } }), "non-positive keylog.max rejected")
 end
 
+------------------------------------------------------------- presets
+section("presets")
+do
+  local presets = require("which-key.presets")
+
+  -- resolve() normalizes the many accepted spellings.
+  eq(presets.resolve(nil), {}, "nil resolves to no presets")
+  eq(presets.resolve(false), {}, "false resolves to no presets")
+  eq(presets.resolve({}), {}, "empty list resolves to no presets")
+  eq(presets.resolve(true), presets.default, "true resolves to the default set")
+  eq(presets.resolve("all"), presets.all, "'all' resolves to every set")
+  eq(presets.resolve("g"), { "g" }, "a single name resolves to a one-element list")
+  eq(presets.resolve({ "g", "g", "z" }), { "g", "z" }, "duplicates are dropped")
+  ok(not pcall(presets.resolve, "nope"), "unknown preset name is rejected")
+
+  -- annotations()/roots() reflect the chosen sets.
+  local ann = presets.annotations({ "g" })
+  ok(#ann > 0, "g preset yields annotations")
+  eq(ann[1].mode, "n", "annotations default to normal mode")
+  eq(presets.roots({ "windows" }), { "<C-w>" }, "windows preset roots on <C-w>")
+  eq(presets.roots({ "brackets" }), { "[", "]" }, "brackets preset roots on [ and ]")
+
+  -- setup({ presets = ... }) annotates the built-ins into the registry,
+  -- and they are searchable — without creating any live keymap.
+  reset()
+  wk.setup({ delay = 0, presets = { "g" } })
+  eq(wk.registry():get("n", "gd").desc, "Go to local declaration", "preset annotated into registry")
+  local before = vim.fn.maparg("gd", "n")
+  ok(before == "" or before == nil, "annotating gd did not create a live mapping")
+  local hits = require("which-key.ui.search").filter(require("which-key.ui.search").items(), "declaration")
+  ok(#hits >= 1, "preset annotations are fuzzy-searchable")
+
+  -- default setup ships no presets (opt-in).
+  reset()
+  wk.setup({ delay = 0 })
+  eq(wk.registry():get("n", "gd"), nil, "no presets enabled by default")
+end
+
 ----------------------------------------------------------------- summary
 io.write(("\n%d passed, %d failed\n"):format(passed, failed))
 if failed > 0 then

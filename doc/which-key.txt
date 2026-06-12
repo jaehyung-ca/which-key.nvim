@@ -142,6 +142,9 @@ Defaults: >lua
       sort = "key",
       triggers = "auto",  -- "auto" = leader/localleader; or a list of extra
                           -- roots, e.g. { "g", "z" }
+      presets = {},       -- annotate built-in shortcuts (see below). {}/false
+                          -- = none; true = { "g", "z", "windows" }; "all"; or
+                          -- a list, e.g. { "g", "z", "windows", "brackets" }
       keylog = {
         enabled = true,
         max = 50,               -- raw keystrokes retained
@@ -151,6 +154,27 @@ Defaults: >lua
       search = {},
     }
 <
+Built-in presets ~                                            *which-key-presets*
+
+`presets` ships curated annotations for Neovim's *built-in* shortcuts so they
+become browsable and fuzzy-searchable. It is metadata only: each preset calls
+|which-key.annotate()|, never `vim.keymap.set`, so your native shortcuts are
+untouched. Available sets: >
+
+    g         g-prefix: gg, gd, gi, gu/gU, gq, gv, display motions, change list
+    z         folds (zf/zo/zR/zM), scroll (zz/zt/zb), spelling (zg/z=)
+    windows   window management under <C-w>
+    brackets  [ and ] motions: unmatched parens, sections, methods, diffs
+<
+Surface them on demand: >
+
+    :WhichKey g        " menu of built-in g-shortcuts
+    :WhichKeySearch    " fuzzy-search every binding, built-ins included
+<
+Presets do not auto-open a popup on `g`/`z` (see |which-key-limitations|); opt a
+prefix into live triggers with `triggers = { "g", "z" }` if you accept that
+some plugin-mapped g-commands may not replay.
+
 ==============================================================================
 11. HIGHLIGHT GROUPS                                       *which-key-highlights*
 

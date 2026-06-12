@@ -11,6 +11,10 @@ M.defaults = {
   },
   sort = "key", -- "key" | "desc"
   triggers = "auto", -- "auto" derives prefix roots from registered keys
+  -- Built-in shortcut annotations (see presets.lua). Metadata only — never
+  -- creates maps. nil/false/{} = none; true = a sensible default set;
+  -- "all"; a name like "g"; or a list, e.g. { "g", "z", "windows" }.
+  presets = {},
   -- Raw keystroke "panic buffer": diagnoses unregistered/accidental input.
   keylog = {
     enabled = true,
@@ -33,6 +37,13 @@ function M.validate(cfg)
   check(cfg.delay == nil or type(cfg.delay) == "number", "`delay` must be a number or nil")
   check(type(cfg.sort) == "string", "`sort` must be a string")
   check(type(cfg.triggers) == "string" or vim.islist(cfg.triggers), '`triggers` must be "auto" or a list')
+  check(
+    cfg.presets == nil
+      or type(cfg.presets) == "boolean"
+      or type(cfg.presets) == "string"
+      or type(cfg.presets) == "table",
+    "`presets` must be a boolean, string, or list"
+  )
   check(type(cfg.win) == "table", "`win` must be a table")
   check(type(cfg.keylog) == "table", "`keylog` must be a table")
   check(type(cfg.keylog.enabled) == "boolean", "`keylog.enabled` must be a boolean")

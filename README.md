@@ -113,6 +113,7 @@ require("which-key").setup({
   win = { border = "rounded", position = "bottom" },
   sort = "key",
   triggers = "auto",    -- "auto" = leader/localleader; or a list, e.g. { "g", "z" }
+  presets = {},         -- annotate built-in shortcuts; see "Built-in presets"
   keylog = {
     enabled = true,
     max = 50,                -- raw keystrokes retained
@@ -121,6 +122,48 @@ require("which-key").setup({
   },
 })
 ```
+
+### Built-in presets
+
+Out of the box which-key only knows the bindings *you* register. The `presets`
+option ships curated **annotations for Neovim's built-in shortcuts** so they
+become a browsable, fuzzy-searchable reference — without you writing them out.
+
+```lua
+require("which-key").setup({
+  presets = { "g", "z", "windows" },  -- annotate built-in shortcuts
+})
+```
+
+| Value | Meaning |
+|---|---|
+| `{}` / `false` | none (default) |
+| `true` | a sensible default set: `g`, `z`, `windows` |
+| `"all"` | every set below |
+| `{ "g", "z", "windows", "brackets" }` | pick exactly the sets you want |
+
+| Set | Covers |
+|---|---|
+| `g` | `gg`, `gd`, `gi`, `gu`/`gU`, `gq`, `gv`, display-line motions, change list, … |
+| `z` | folds (`zf`/`zo`/`zR`/`zM`…), scroll positioning (`zz`/`zt`/`zb`), spelling (`zg`/`z=`) |
+| `windows` | window management under `<C-w>` (`s`, `v`, `h/j/k/l`, `=`, `H/J/K/L`, …) |
+| `brackets` | `[`/`]` motions: unmatched parens, sections, methods, diffs, spell |
+
+Browse or search them:
+
+```vim
+:WhichKey g        " menu of built-in g-shortcuts
+:WhichKey z        " menu of built-in z-shortcuts
+:WhichKeySearch    " fuzzy-search every known binding, built-ins included
+```
+
+Presets are **metadata only** — they call `annotate()`, never `vim.keymap.set`,
+so your native shortcuts are untouched. They do **not** auto-open a popup when
+you press `g`/`z`: those prefixes are real built-in commands, and installing a
+live trigger on them is deferred (`:help which-key-limitations`). Use the
+commands above to surface them on demand, or — if you accept the caveat that
+some plugin-mapped g-commands (e.g. `gx`) may not replay — opt a prefix in
+explicitly with `triggers = { "g", "z" }`.
 
 Highlight groups (all overridable, see `:help which-key-highlights`):
 `WhichKeyKey`, `WhichKeyDesc`, `WhichKeyGroup`, `WhichKeySeparator`,

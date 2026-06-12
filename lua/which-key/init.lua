@@ -3,6 +3,7 @@
 local config = require("which-key.config")
 local keylog = require("which-key.keylog")
 local popup = require("which-key.ui.popup")
+local presets = require("which-key.presets")
 local trigger = require("which-key.trigger")
 local Registry = require("which-key.registry")
 
@@ -25,6 +26,8 @@ end
 function M.setup(opts)
   M._state.config = config.extend(opts)
   M._state.registry = M._state.registry or Registry.new()
+  -- Annotate built-in shortcuts (metadata only; does not create maps).
+  M.annotate(presets.annotations(presets.resolve(M._state.config.presets)))
   keylog.setup(M._state.config.keylog)
   popup.setup(M._state.config.win)
   trigger.setup(M._state.config)
