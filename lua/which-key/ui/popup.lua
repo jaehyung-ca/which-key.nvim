@@ -126,7 +126,14 @@ function M.open(node)
   vim.bo[M._buf].modifiable = false
   vim.api.nvim_buf_clear_namespace(M._buf, ns, 0, -1)
   for _, m in ipairs(marks) do
-    vim.api.nvim_buf_set_extmark(M._buf, ns, m.row, m.col, { end_col = m.end_col, hl_group = m.hl })
+    -- Trailing padding is stripped from each line (see _layout), so a mark on
+    -- the last cell can reach past the line end. Clamp to the real byte length.
+    local len = #(lines[m.row + 1] or "")
+    local col = math.min(m.col, len)
+    local end_col = math.min(m.end_col, len)
+    if end_col > col then
+      vim.api.nvim_buf_set_extmark(M._buf, ns, m.row, col, { end_col = end_col, hl_group = m.hl })
+    end
   end
 
   local height = #lines

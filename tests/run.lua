@@ -145,6 +145,17 @@ do
   local lines, marks = popup._layout(items)
   ok(#lines >= 1, "layout produces at least one line")
   ok(#marks >= 3, "layout emits key/sep/desc highlight marks")
+
+  -- Regression: uneven desc widths pack into multiple columns; trailing padding
+  -- is stripped per line, so open() must clamp marks or set_extmark errors with
+  -- "Invalid 'end_col': out of range".
+  local wide = Registry.new()
+  for i, d in ipairs({ "x", "a much longer description", "mid", "y", "z" }) do
+    wide:add("n", "<leader>" .. string.char(96 + i), { desc = d })
+  end
+  local wnode = wide:node_at("n", "<leader>")
+  ok(pcall(popup.open, wnode), "open() does not crash on uneven, padded rows")
+  popup.close()
 end
 
 ------------------------------------------------------------- triggers
