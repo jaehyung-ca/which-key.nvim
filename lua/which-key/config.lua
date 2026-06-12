@@ -14,7 +14,7 @@ M.defaults = {
   -- Built-in shortcut annotations (see presets.lua). Metadata only — never
   -- creates maps. nil/false/{} = none; true = a sensible default set;
   -- "all"; a name like "g"; or a list, e.g. { "g", "lsp", "z", "windows" }.
-  presets = {},
+  presets = "all",
   -- Raw keystroke "panic buffer": diagnoses unregistered/accidental input.
   keylog = {
     enabled = true,
