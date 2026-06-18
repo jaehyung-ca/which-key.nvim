@@ -6,7 +6,7 @@
 
 local M = {}
 
-local ns = vim.api.nvim_create_namespace("which-key-popup")
+local ns = vim.api.nvim_create_namespace("shortcuts-popup")
 M._win = nil
 M._buf = nil
 M._border = "rounded"
@@ -16,10 +16,10 @@ local function ensure_hl()
     opts.default = true
     vim.api.nvim_set_hl(0, name, opts)
   end
-  set("WhichKeyKey", { link = "Special" })
-  set("WhichKeyDesc", { link = "Normal" })
-  set("WhichKeyGroup", { link = "Function" })
-  set("WhichKeySeparator", { link = "Comment" })
+  set("ShortcutsKey", { link = "Special" })
+  set("ShortcutsDesc", { link = "Normal" })
+  set("ShortcutsGroup", { link = "Function" })
+  set("ShortcutsSeparator", { link = "Comment" })
 end
 
 --- @param win_cfg table|nil the `win` config sub-table
@@ -87,13 +87,13 @@ function M._layout(items)
         local key = lpad(it.keydisp, key_w)
         local desc = rpad(it.desc, desc_w)
         local kbytes = #key
-        marks[#marks + 1] = { row = r, col = col, end_col = col + kbytes, hl = "WhichKeyKey" }
-        marks[#marks + 1] = { row = r, col = col + kbytes, end_col = col + kbytes + #SEP, hl = "WhichKeySeparator" }
+        marks[#marks + 1] = { row = r, col = col, end_col = col + kbytes, hl = "ShortcutsKey" }
+        marks[#marks + 1] = { row = r, col = col + kbytes, end_col = col + kbytes + #SEP, hl = "ShortcutsSeparator" }
         marks[#marks + 1] = {
           row = r,
           col = col + kbytes + #SEP,
           end_col = col + kbytes + #SEP + #desc,
-          hl = it.is_group and "WhichKeyGroup" or "WhichKeyDesc",
+          hl = it.is_group and "ShortcutsGroup" or "ShortcutsDesc",
         }
         local text = key .. SEP .. desc
         parts[#parts + 1] = text .. string.rep(" ", GAP)

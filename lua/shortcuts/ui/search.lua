@@ -5,11 +5,11 @@
 -- entry feeds its lhs back with remap, so the existing keymap/trigger machinery
 -- executes it — search doesn't duplicate execution semantics.
 
-local keys = require("which-key.keys")
+local keys = require("shortcuts.keys")
 
 local M = {}
 
-local ns = vim.api.nvim_create_namespace("which-key-search")
+local ns = vim.api.nvim_create_namespace("shortcuts-search")
 M._win = nil
 M._buf = nil
 
@@ -22,15 +22,15 @@ local DOWN = vim.api.nvim_replace_termcodes("<Down>", true, true, true)
 local UP = vim.api.nvim_replace_termcodes("<Up>", true, true, true)
 
 local function ensure_hl()
-  vim.api.nvim_set_hl(0, "WhichKeySearchMatch", { link = "IncSearch", default = true })
-  vim.api.nvim_set_hl(0, "WhichKeySearchSel", { link = "Visual", default = true })
-  vim.api.nvim_set_hl(0, "WhichKeySearchPrompt", { link = "Question", default = true })
+  vim.api.nvim_set_hl(0, "ShortcutsSearchMatch", { link = "IncSearch", default = true })
+  vim.api.nvim_set_hl(0, "ShortcutsSearchSel", { link = "Visual", default = true })
+  vim.api.nvim_set_hl(0, "ShortcutsSearchPrompt", { link = "Question", default = true })
 end
 
 --- Build searchable items from the registry.
 --- @return table[] { lhs, desc, mode, mapping, text }
 function M.items()
-  local list = require("which-key").registry():list()
+  local list = require("shortcuts").registry():list()
   local lhs_w = 0
   for _, m in ipairs(list) do
     lhs_w = math.max(lhs_w, #m.lhs)
@@ -88,7 +88,7 @@ end
 --- @param opts table|nil { height, min_width, max_width }
 --- @return table window config for nvim_open_win / nvim_win_set_config
 function M._winconfig(lines, opts)
-  opts = opts or require("which-key").config().search or {}
+  opts = opts or require("shortcuts").config().search or {}
   local content = 0
   for _, l in ipairs(lines) do
     content = math.max(content, vim.fn.strdisplaywidth(l))
@@ -109,7 +109,7 @@ function M._winconfig(lines, opts)
     height = height,
     style = "minimal",
     border = "rounded",
-    title = " which-key search ",
+    title = " shortcuts search ",
     zindex = 200,
   }
 end
@@ -130,12 +130,12 @@ local function render(query, filtered, sel)
   vim.bo[M._buf].modifiable = false
 
   vim.api.nvim_buf_clear_namespace(M._buf, ns, 0, -1)
-  vim.api.nvim_buf_set_extmark(M._buf, ns, 0, 0, { end_col = 1, hl_group = "WhichKeySearchPrompt" })
+  vim.api.nvim_buf_set_extmark(M._buf, ns, 0, 0, { end_col = 1, hl_group = "ShortcutsSearchPrompt" })
   if #filtered > 0 then
-    vim.api.nvim_buf_set_extmark(M._buf, ns, sel, 0, { line_hl_group = "WhichKeySearchSel" })
+    vim.api.nvim_buf_set_extmark(M._buf, ns, sel, 0, { line_hl_group = "ShortcutsSearchSel" })
     for i, f in ipairs(filtered) do
       for _, p in ipairs(f.pos) do
-        vim.api.nvim_buf_set_extmark(M._buf, ns, i, 2 + p, { end_col = 2 + p + 1, hl_group = "WhichKeySearchMatch" })
+        vim.api.nvim_buf_set_extmark(M._buf, ns, i, 2 + p, { end_col = 2 + p + 1, hl_group = "ShortcutsSearchMatch" })
       end
     end
   end
@@ -182,7 +182,7 @@ end
 local function execute(item)
   if not M._can_feed(item.mode, vim.fn.mode()) then
     vim.notify(
-      ('which-key: "%s" is a %s-mode mapping — invoke it from that mode'):format(item.lhs, item.mode),
+      ('shortcuts: "%s" is a %s-mode mapping — invoke it from that mode'):format(item.lhs, item.mode),
       vim.log.levels.WARN
     )
     return
@@ -193,7 +193,7 @@ end
 function M.open()
   local items = M.items()
   if #items == 0 then
-    vim.notify("which-key: nothing registered to search", vim.log.levels.INFO)
+    vim.notify("shortcuts: nothing registered to search", vim.log.levels.INFO)
     return
   end
 

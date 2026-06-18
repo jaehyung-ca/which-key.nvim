@@ -2,7 +2,7 @@
 --
 -- These are metadata only: enabling a preset calls annotate() (never
 -- vim.keymap.set), so the live built-in mappings are untouched. The payoff is
--- that `:WhichKeySearch` and `:WhichKey <prefix>` turn into a browsable,
+-- that `:ShortcutsSearch` and `:Shortcuts <prefix>` turn into a browsable,
 -- fuzzy-searchable reference of native shortcuts you already have.
 --
 -- Each set lists { "<lhs>", "description" } pairs and the prefix root(s) those
@@ -210,7 +210,7 @@ function M.resolve(spec)
       seen[name] = true
       out[#out + 1] = name
     elseif not M.sets[name] then
-      error("which-key.setup: unknown preset '" .. tostring(name) .. "'", 0)
+      error("shortcuts.setup: unknown preset '" .. tostring(name) .. "'", 0)
     end
   end
   return out

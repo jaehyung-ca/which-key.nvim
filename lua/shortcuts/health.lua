@@ -1,10 +1,10 @@
--- :checkhealth which-key
+-- :checkhealth shortcuts
 
 local M = {}
 
 function M.check()
   local h = vim.health
-  h.start("which-key")
+  h.start("shortcuts")
 
   if vim.fn.has("nvim-0.12") == 1 then
     h.ok("Neovim " .. tostring(vim.version()))
@@ -18,7 +18,7 @@ function M.check()
     h.warn("mapleader is not set; <leader> maps resolve to '\\'")
   end
 
-  local wk = require("which-key")
+  local wk = require("shortcuts")
   if wk._state.config then
     h.ok("setup() has run")
   else
@@ -28,14 +28,14 @@ function M.check()
   local n = #wk.registry():list()
   h.info(("%d registered/annotated mapping(s)"):format(n))
 
-  local keylog = require("which-key.keylog")
+  local keylog = require("shortcuts.keylog")
   if keylog._on then
     h.ok(("keylog active (%d keystroke(s) buffered)"):format(#keylog._ring))
   else
     h.info("keylog inactive (enable via setup{ keylog = { enabled = true } })")
   end
 
-  local trigger = require("which-key.trigger")
+  local trigger = require("shortcuts.trigger")
   local n = 0
   for _, byrole in pairs(trigger._installed) do
     for _ in pairs(byrole) do

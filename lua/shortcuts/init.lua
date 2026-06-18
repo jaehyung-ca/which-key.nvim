@@ -1,11 +1,11 @@
 -- Public API: setup / register / annotate (+ stubs for later phases).
 
-local config = require("which-key.config")
-local keylog = require("which-key.keylog")
-local popup = require("which-key.ui.popup")
-local presets = require("which-key.presets")
-local trigger = require("which-key.trigger")
-local Registry = require("which-key.registry")
+local config = require("shortcuts.config")
+local keylog = require("shortcuts.keylog")
+local popup = require("shortcuts.ui.popup")
+local presets = require("shortcuts.presets")
+local trigger = require("shortcuts.trigger")
+local Registry = require("shortcuts.registry")
 
 local M = {}
 
@@ -129,7 +129,7 @@ function M.config()
   return ensure().config
 end
 
---- Open the popup for a prefix (default: leader). Powers :WhichKey.
+--- Open the popup for a prefix (default: leader). Powers :Shortcuts.
 --- @param prefix string|nil
 --- @param mode string|nil
 function M.show(prefix, mode)
@@ -146,7 +146,7 @@ end
 --- Open the live fuzzy search picker over all registered/annotated bindings.
 function M.search()
   ensure()
-  require("which-key.ui.search").open()
+  require("shortcuts.ui.search").open()
 end
 
 return M

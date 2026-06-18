@@ -24,9 +24,9 @@ local function section(name)
   io.write("# " .. name .. "\n")
 end
 
-local keys = require("which-key.keys")
-local Registry = require("which-key.registry")
-local wk = require("which-key")
+local keys = require("shortcuts.keys")
+local Registry = require("shortcuts.registry")
+local wk = require("shortcuts")
 
 local function reset()
   wk._state.registry = Registry.new()
@@ -93,7 +93,7 @@ end
 -------------------------------------------------------------- keylog
 section("keylog")
 do
-  local keylog = require("which-key.keylog")
+  local keylog = require("shortcuts.keylog")
   -- enabled=false so no real on_key hook is installed during tests.
   keylog.setup({ enabled = false, max = 3, notify_recording = false, set_showcmd = false })
   keylog._capture("a")
@@ -116,7 +116,7 @@ end
 -------------------------------------------------------------- popup
 section("popup")
 do
-  local popup = require("which-key.ui.popup")
+  local popup = require("shortcuts.ui.popup")
   local root = Registry.new()
   root:add("n", "<leader>ff", { desc = "Find files" })
   root:add("n", "<leader>fg", { desc = "Live grep" })
@@ -161,7 +161,7 @@ end
 ------------------------------------------------------------- triggers
 section("triggers")
 do
-  local trigger = require("which-key.trigger")
+  local trigger = require("shortcuts.trigger")
   reset()
   wk.setup({ delay = 0 })
   wk.register({ { "<leader>tt", function() end, desc = "Test" } })
@@ -175,7 +175,7 @@ end
 -------------------------------------------------------------- search
 section("search")
 do
-  local search = require("which-key.ui.search")
+  local search = require("shortcuts.ui.search")
   reset()
   wk.setup({ delay = 0 })
   wk.register({
@@ -236,7 +236,7 @@ end
 --------------------------------------------------------- search exec
 section("search-exec")
 do
-  local search = require("which-key.ui.search")
+  local search = require("shortcuts.ui.search")
   ok(search._can_feed("n", "n"), "normal map fires from normal mode")
   ok(not search._can_feed("n", "v"), "normal map does not fire from visual mode")
   ok(search._can_feed("v", "V"), "visual map fires from linewise visual")
@@ -247,7 +247,7 @@ end
 -------------------------------------------------------------- config
 section("config")
 do
-  local config = require("which-key.config")
+  local config = require("shortcuts.config")
   ok(pcall(config.extend, {}), "default config validates")
   ok(pcall(config.extend, { delay = 300, triggers = { "g" } }), "valid overrides pass")
   ok(not pcall(config.extend, { delay = "soon" }), "non-number delay rejected")
@@ -261,7 +261,7 @@ end
 ------------------------------------------------------------- presets
 section("presets")
 do
-  local presets = require("which-key.presets")
+  local presets = require("shortcuts.presets")
 
   -- resolve() normalizes the many accepted spellings.
   eq(presets.resolve(nil), {}, "nil resolves to no presets")
@@ -296,7 +296,7 @@ do
   eq(wk.registry():get("n", "gd").desc, "Go to local declaration", "preset annotated into registry")
   local before = vim.fn.maparg("gd", "n")
   ok(before == "" or before == nil, "annotating gd did not create a live mapping")
-  local hits = require("which-key.ui.search").filter(require("which-key.ui.search").items(), "declaration")
+  local hits = require("shortcuts.ui.search").filter(require("shortcuts.ui.search").items(), "declaration")
   ok(#hits >= 1, "preset annotations are fuzzy-searchable")
 
   -- default setup ships no presets (opt-in).

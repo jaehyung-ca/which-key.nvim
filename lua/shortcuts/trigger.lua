@@ -10,8 +10,8 @@
 -- command, so there is no shadowing/replay-recursion to handle. Non-leader
 -- roots (g, z, …) can be allow-listed via config.triggers but are opt-in.
 
-local keys = require("which-key.keys")
-local popup = require("which-key.ui.popup")
+local keys = require("shortcuts.keys")
+local popup = require("shortcuts.ui.popup")
 
 local M = {}
 
@@ -55,7 +55,7 @@ local function install(mode, rawkey)
   M._installed[mode][rawkey] = true
   vim.keymap.set(mode, rawkey, function()
     M.run(mode, rawkey)
-  end, { silent = true, nowait = true, desc = "which-key trigger" })
+  end, { silent = true, nowait = true, desc = "shortcuts trigger" })
 end
 
 --- (Re)install triggers for every allow-listed root present in the registry.
@@ -63,7 +63,7 @@ function M.refresh()
   if not M._cfg then
     return -- setup() hasn't run; it will install everything itself
   end
-  local reg = require("which-key").registry()
+  local reg = require("shortcuts").registry()
   for mode, root in pairs(reg.tries) do
     for rawkey in pairs(root.children) do
       if M._allowed[rawkey] then
@@ -148,22 +148,22 @@ local function drive(node, seq)
   popup.close()
   M._active = false
   if not ok then
-    vim.notify("which-key: " .. tostring(err), vim.log.levels.ERROR)
+    vim.notify("shortcuts: " .. tostring(err), vim.log.levels.ERROR)
   end
 end
 
 --- Entry point from a trigger keymap (root key already consumed).
 function M.run(mode, root_rawkey)
-  local root = require("which-key").registry().tries[mode]
+  local root = require("shortcuts").registry().tries[mode]
   local node = root and root.children[root_rawkey]
   drive(node, root_rawkey)
 end
 
---- Open the menu for an arbitrary prefix (used by :WhichKey).
+--- Open the menu for an arbitrary prefix (used by :Shortcuts).
 function M.open(mode, prefix)
-  local node = require("which-key").registry():node_at(mode, prefix)
+  local node = require("shortcuts").registry():node_at(mode, prefix)
   if not node then
-    vim.notify("which-key: no bindings under " .. prefix, vim.log.levels.INFO)
+    vim.notify("shortcuts: no bindings under " .. prefix, vim.log.levels.INFO)
     return
   end
   drive(node, keys.normalize(prefix))

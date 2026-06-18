@@ -62,7 +62,7 @@ function M.enable()
   if M._on then
     return
   end
-  M._ns = M._ns or vim.api.nvim_create_namespace("which-key-keylog")
+  M._ns = M._ns or vim.api.nvim_create_namespace("shortcuts-keylog")
   vim.on_key(function(key, typed)
     local k = (typed ~= nil and typed ~= "") and typed or key
     M._capture(k)
@@ -92,7 +92,7 @@ function M.setup(cfg)
     vim.o.showcmd = true
   end
 
-  local group = vim.api.nvim_create_augroup("which-key-keylog", { clear = true })
+  local group = vim.api.nvim_create_augroup("shortcuts-keylog", { clear = true })
   if M.cfg.notify_recording then
     vim.api.nvim_create_autocmd("RecordingEnter", {
       group = group,
@@ -123,7 +123,7 @@ function M.annotate(entry)
   return BUILTIN_NOTES[entry.key]
 end
 
---- Render the ring to display lines for :WhichKeyWhat.
+--- Render the ring to display lines for :ShortcutsWhat.
 --- @return string[]
 function M.render()
   if #M._ring == 0 then

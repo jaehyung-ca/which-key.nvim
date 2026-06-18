@@ -1,4 +1,4 @@
-# which-key — Neovim keybinding manager
+# shortcuts — Neovim keybinding manager
 
 A standalone, **zero-dependency** Lua plugin for Neovim **0.12+** that registers
 keybindings, shows available continuations on input, searches bindings, and
@@ -15,7 +15,7 @@ The package owns two clearly separate concerns:
   and `showcmd`. This diagnoses *accidental/unregistered* input — the original
   motivation ("I hit random keys and it went weird"). `on_key` is safe here
   because it does NO segmentation; it just appends raw keys. Surfaced via
-  `:WhichKeyWhat`.
+  `:ShortcutsWhat`.
 
 There is **no action-history feature**. Recording *intentional, registered*
 actions added little value (you already know your own shortcuts) and forced a
@@ -45,9 +45,9 @@ Trigger + state-machine (modeled on `mini.clue`), not a typeahead race:
 ## Module layout
 
 ```
-which-key/
-├── plugin/which-key.lua          -- commands + load guard
-├── lua/which-key/
+shortcuts/
+├── plugin/shortcuts.lua          -- commands + load guard
+├── lua/shortcuts/
 │   ├── init.lua                  -- public API: setup/register/annotate/search/what
 │   ├── config.lua                -- defaults + merge
 │   ├── keys.lua                  -- keycode normalization + trie-key splitting
@@ -56,7 +56,7 @@ which-key/
 │   ├── trigger.lua               -- (Phase 2) trigger maps + getcharstr state machine
 │   ├── ui/popup.lua              -- (Phase 2) float window: columns, highlights
 │   ├── ui/search.lua             -- (Phase 3) matchfuzzypos picker over registry
-│   └── health.lua                -- :checkhealth which-key
+│   └── health.lua                -- :checkhealth shortcuts
 └── tests/run.lua                 -- zero-dep headless runner (nvim -l tests/run.lua)
 ```
 
@@ -65,37 +65,37 @@ which-key/
 - **Phase 0 — Scaffold.** ✅ config, `keys.lua`, health, test runner.
 - **Phase 1 — Registry.** ✅ trie, `register()`/`annotate()` (metadata only).
 - **Phase 1.5 — Keylog.** ✅ raw `on_key` ring, macro-recording guard, `showcmd`,
-  `:WhichKeyWhat`.
+  `:ShortcutsWhat`.
 - **Phase 2 — Popup + triggers.** ✅ trigger keymaps on leader/localleader roots,
-  `getcharstr` state machine, float popup (columns + highlights), `:WhichKey`.
+  `getcharstr` state machine, float popup (columns + highlights), `:Shortcuts`.
   MVP scope: leader-rooted triggers only by default (no builtin shadowing, no
   replay-recursion). Non-leader roots (`g`, `z`, …) are opt-in via
   `config.triggers`. Deferred to a Phase 2.x: safe replay for builtin-prefix
   roots, counts/registers passthrough, prefix nodes that are *also* a mapping.
 - **Phase 3 — Search.** ✅ live `matchfuzzypos` picker over the registry with
   positional highlights; selecting feeds the lhs so the real mapping executes.
-  `:WhichKeySearch` / `require("which-key").search()`.
+  `:ShortcutsSearch` / `require("shortcuts").search()`.
 - **Phase 4 — Polish.** ✅ mode-aware search execution (declines gracefully for
   visual/insert maps fired from the wrong mode), config validation (fail fast on
-  bad `setup`), `:help which-key` + README.
+  bad `setup`), `:help shortcuts` + README.
   Still deferred: buffer-local map tracking, safe replay for non-leader
   (`g`/`z`) triggers, keylog "effect correlation", perf pass.
 
 ## Public API
 
 ```lua
-require("which-key").setup({ delay = 200 })
+require("shortcuts").setup({ delay = 200 })
 
-require("which-key").register({
+require("shortcuts").register({
   { "<leader>f", group = "Find" },
   { "<leader>ff", function() end, desc = "Find files" },
   { "<leader>fg", ":Grep<cr>",    desc = "Live grep" },
 })
 
-require("which-key").annotate({ gd = "Go to definition" })  -- metadata for an existing map
+require("shortcuts").annotate({ gd = "Go to definition" })  -- metadata for an existing map
 
-require("which-key").search()     -- Phase 3
-require("which-key").what()       -- recent raw keystrokes (:WhichKeyWhat)
+require("shortcuts").search()     -- Phase 3
+require("shortcuts").what()       -- recent raw keystrokes (:ShortcutsWhat)
 ```
 
 ## Known limitations (by design)

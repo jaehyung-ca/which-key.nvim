@@ -38,7 +38,7 @@ M.defaults = {
 function M.validate(cfg)
   local function check(cond, msg)
     if not cond then
-      error("which-key.setup: " .. msg, 0)
+      error("shortcuts.setup: " .. msg, 0)
     end
   end
   check(cfg.delay == nil or type(cfg.delay) == "number", "`delay` must be a number or nil")

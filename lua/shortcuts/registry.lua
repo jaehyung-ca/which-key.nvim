@@ -8,7 +8,7 @@
 -- A mapping carries display + metadata, not execution logic (the keymap itself
 -- handles execution; the registry is the source of truth for search and the UI).
 
-local keys = require("which-key.keys")
+local keys = require("shortcuts.keys")
 
 local Registry = {}
 Registry.__index = Registry
